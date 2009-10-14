@@ -25,7 +25,7 @@ class GZipper
     begin
       # if args['level'] is from (-1..9) return args['level], otherwise return -1
       level = (-1..9).include?(args['level']) ? args['level'] : -1
-			
+      
       gzfile = tempfile(args['file'].basename, ".gz")
 
       Zlib::GzipWriter.open(gzfile, level) do |gz|
@@ -35,9 +35,9 @@ class GZipper
     
       bp.complete(gzfile)
 
-		rescue Exception => err
-			bp.error('Compress Error', err.message)
-		end
+    rescue Exception => err
+      bp.error('Compress Error', err.message)
+    end
 
   end
   
@@ -47,8 +47,8 @@ class GZipper
 
   def uncompress(bp, args)
     begin
-			tempfile = tempfile(args['file'].basename(".gz"), "")
-			unzipped = File.open(tempfile, 'w')
+      tempfile = tempfile(args['file'].basename(".gz"), "")
+      unzipped = File.open(tempfile, 'w')
       Zlib::GzipReader.open(args['file']) do |gz|
         unzipped.write gz.read
         gz.close
@@ -57,21 +57,14 @@ class GZipper
 
       bp.complete(tempfile)
 
-		rescue Exception => err
-			bp.error('Uncompress Error', err.message)
-		end
+    rescue Exception => err
+      bp.error('Uncompress Error', err.message)
+    end
 
   end
     
-
-    
-  #  bp.complete(file_here)
-  #end
- 
   #bp_doc :uncompress,   "Uncompress a file using GZip.
   #                    <file:path> The file to uncompress."
-
-
 
 end
 
