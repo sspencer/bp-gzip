@@ -11,28 +11,33 @@ class GZipper
 
   @@temp_id = 0
 
+	# Constructor.  Use temp_dir to store intermediate files.
   def initialize(args)
     @temp_dir = args['temp_dir']
     @pid = args['clientPid']
   end
 
+	# Create session unique filename
   def tempfile(filename, ext)
     @@temp_id += 1
     return Pathname.new(@temp_dir) + "gz#{@@temp_id}_#{@pid}_#{filename}#{ext}"
   end
 
+	# Compress a file with optionally specified compression level (args are 'file', 'level').
   def compress(bp, args)
     begin
       # if args['level'] is from (-1..9) return args['level], otherwise return -1
       level = (-1..9).include?(args['level']) ? args['level'] : -1
-      
+
+      # temporary filename in temp_dir
       gzfile = tempfile(args['file'].basename, ".gz")
 
       Zlib::GzipWriter.open(gzfile, level) do |gz|
         gz.write open(args['file'], "rb") {|io| io.read }
         gz.close
       end
-    
+
+    	# return Pathname to file
       bp.complete(gzfile)
 
     rescue Exception => err
@@ -45,8 +50,10 @@ class GZipper
   #                    <file:path> The file to compress.
   #                    [level:integer] The optional compression level, 0-9."
 
+	# Uncompress gzipped file.  Only arg is 'file'.
   def uncompress(bp, args)
     begin
+			# basename(".gz") removes ".gz" from filename if ".gz" is present
       tempfile = tempfile(args['file'].basename(".gz"), "")
       unzipped = File.open(tempfile, 'w')
       Zlib::GzipReader.open(args['file']) do |gz|
@@ -55,6 +62,7 @@ class GZipper
         unzipped.close
       end
 
+			# return Pathname to file.
       bp.complete(tempfile)
 
     rescue Exception => err
@@ -73,7 +81,7 @@ rubyCoreletDefinition = {
   'name' => "GZipper",  
   'major_version' => 0,  
   'minor_version' => 1,  
-  'micro_version' => 1,  
+  'micro_version' => 2,  
   'documentation' => 'A tool to compress and uncompress files using GZip.',
   'functions' =>  
   [  
